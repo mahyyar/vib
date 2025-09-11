@@ -84,6 +84,8 @@ class User(BaseModel):
         if isinstance(v, float):  # Allow float to int conversion
             return int(v)
         if isinstance(v, int):  # Allow integers directly
+            if v > 500000000000:
+                raise ValueError("data_limit cannot exceed 500 GB")
             return v
         raise ValueError("data_limit must be an integer or a float, not a string")  # Reject strings
 
