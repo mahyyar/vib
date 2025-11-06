@@ -77,16 +77,19 @@ class User(BaseModel):
 
     next_plan: Optional[NextPlanModel] = Field(None, nullable=True)
 
-    @field_validator('data_limit', mode='before')
-    def cast_to_int(cls, v):
-        if v is None:  # Allow None values
-            return v
-        if isinstance(v, float):  # Allow float to int conversion
-            return int(v)
-        if isinstance(v, int):  # Allow integers directly
-            if v > 500000000000:
-                raise ValueError("data_limit cannot exceed 500 GB")
-            return v
+   @field_validator('data_limit', mode='before')
+def validate_data_limit(cls, v):
+    if v is None:
+        return 0
+    if isinstance(v, float):
+        v = int(v)
+    if not isinstance(v, int):
+        raise ValueError("data_limit must be an integer or float")
+    if v < 0:
+        raise ValueError("data_limit cannot be negative")
+    if v > 500_000_000_000:
+        raise ValueError("data_limit cannot exceed 500 GB")
+    return v
         raise ValueError("data_limit must be an integer or a float, not a string")  # Reject strings
 
     @field_validator("proxies", mode="before")
